@@ -1,7 +1,14 @@
 import crypto from 'crypto';
 import prisma from '../../db.js';
 
-const DEFAULT_EXPIRY_MINUTES = 5;
+// Lifetime (minutes) of a one-time `bunker://` connection token. Read from
+// SIGNET_BUNKER_TOKEN_EXPIRY_MINUTES so a deployment can widen the coordination
+// window around a pairing (e.g. relaying a URI across chat); invalid or
+// non-positive values fall back to 5 minutes.
+const DEFAULT_EXPIRY_MINUTES = (() => {
+    const v = Number(process.env.SIGNET_BUNKER_TOKEN_EXPIRY_MINUTES);
+    return Number.isFinite(v) && v > 0 ? v : 5;
+})();
 
 export interface ConnectionTokenResult {
     token: string;
